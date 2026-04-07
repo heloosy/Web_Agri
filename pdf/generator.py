@@ -122,69 +122,154 @@ def generate_pdf(profile: dict, plan_text: str, lang: str = "EN") -> str:
     # ── AI Plan Content ───────────────────────────────────────────────────────
     plan_heading = "YOUR FARM ADVISORY PLAN" if lang == "EN" else "แผนการเกษตรของคุณ"
     story.append(HRFlowable(width="100%", thickness=1, color=GREEN_MID, spaceAfter=6))
-    story.append(Paragraph(plan_heading, st["section"]))
 
-    # 🧩 ADVANCED PARSER: Handle Tables & Paragraphs
+    import re
+
+    def _clean(text):
+        """Escape HTML and convert markdown bold."""
+        text = (text.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;"))
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        return text
+
+    def _make_table(rows):
+        """Render a markdown table as a ReportLab table, auto-sizing columns."""
+        if not rows:
+            return None
+        num_cols = max(len(r) for r in rows)
+        page_width = 17 * cm
+
+        # Fixed widths for known table shapes
+        if num_cols == 6:
+            col_widths = [2.2*cm, 2.5*cm, 3.5*cm, 3.2*cm, 2.5*cm, 3.1*cm]
+        elif num_cols == 3:
+            col_widths = [3.5*cm, 4.5*cm, 9*cm]
+        elif num_cols == 2:
+            col_widths = [5*cm, 12*cm]
+        else:
+            col_widths = [page_width / num_cols] * num_cols
+
+        # Pad all rows to same column count
+        padded = []
+        for row in rows:
+            while len(row) < num_cols:
+                row.append(Paragraph("", st["body"]))
+            padded.append(row[:num_cols])
+
+        tbl = Table(padded, colWidths=col_widths, repeatRows=1)
+        tbl.setStyle(TableStyle([
+            # Header row
+            ("BACKGROUND",    (0, 0), (-1, 0), GREEN_DARK),
+            ("TEXTCOLOR",     (0, 0), (-1, 0), WHITE),
+            ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE",      (0, 0), (-1, 0), 9),
+            # Alternating body rows
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, GREEN_LIGHT]),
+            ("FONTNAME",      (0, 1), (-1, -1), "Helvetica"),
+            ("FONTSIZE",      (0, 1), (-1, -1), 8),
+            ("ALIGN",         (0, 0), (-1, -1), "LEFT"),
+            ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+            ("GRID",          (0, 0), (-1, -1), 0.4, GREEN_MID),
+            ("TOPPADDING",    (0, 0), (-1, -1), 5),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 4),
+            ("WORDWRAP",      (0, 0), (-1, -1), 1),
+        ]))
+        return tbl
+
     lines = plan_text.split("\n")
     i = 0
     while i < len(lines):
-        line = lines[i].strip()
+        raw = lines[i]
+        line = raw.strip()
+
         if not line:
-            story.append(Spacer(1, 0.2*cm))
+            story.append(Spacer(1, 0.15*cm))
             i += 1
             continue
-            
-        # 🧪 TABLE DETECTOR: Detect Markdown Tables (starts with |)
-        if line.startswith("|") and i + 1 < len(lines) and lines[i+1].strip().replace(" ", "").startswith("|-"):
-            table_data = []
+
+        # ── TABLE DETECTOR ─────────────────────────────────────────────────
+        next_line = lines[i+1].strip() if i + 1 < len(lines) else ""
+        is_separator = next_line.replace(" ", "").replace("|", "").replace("-", "") == ""
+        if line.startswith("|") and is_separator:
+            table_rows = []
             while i < len(lines) and lines[i].strip().startswith("|"):
-                # Clean row and split by |
-                row = [Paragraph(cell.strip().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"), st["body"]) 
-                       for cell in lines[i].strip().strip("|").split("|")]
-                
-                # Skip the separator line (e.g., |---|---|)
-                if not all(c.strip().startswith("-") for c in lines[i].strip().strip("|").split("|")):
-                    table_data.append(row)
+                cells_raw = lines[i].strip().strip("|").split("|")
+                # Skip pure separator rows (|---|---| etc.)
+                if all(re.fullmatch(r'[\s\-:]+', c) for c in cells_raw):
+                    i += 1
+                    continue
+                cells = [
+                    Paragraph(_clean(c.strip()), st["body"])
+                    for c in cells_raw
+                ]
+                table_rows.append(cells)
                 i += 1
-            
-            if table_data:
-                # Create a professional looking table
-                grid_table = Table(table_data, colWidths=[2.5*cm, 4*cm, 10.5*cm])
-                grid_table.setStyle(TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, 0), GREEN_LIGHT),
-                    ("TEXTCOLOR", (0, 0), (-1, 0), GREEN_DARK),
-                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-                    ("GRID", (0, 0), (-1, -1), 0.5, GREEN_MID),
-                    ("TOPPADDING", (0, 0), (-1, -1), 4),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-                ]))
-                story.append(grid_table)
+            tbl = _make_table(table_rows)
+            if tbl:
+                story.append(Spacer(1, 0.2*cm))
+                story.append(tbl)
+                story.append(Spacer(1, 0.3*cm))
             continue
 
-        # Clear Markdown syntax and clean para
-        # 1. Escape HTML basics
-        clean_para = (line.replace("&", "&amp;")
-                         .replace("<", "&lt;")
-                         .replace(">", "&gt;"))
-                         
-        # 2. Convert Bold **Text** to <b>Text</b>
-        import re
-        clean_para = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', clean_para)
-        
-        # 3. Preserve Indents
-        clean_para = clean_para.replace("  ", "&nbsp;&nbsp;")
-                         
-        if clean_para.startswith("#"):
-            # Header handling
-            level = clean_para.count("#")
-            text = clean_para.replace("#", "").strip()
-            story.append(Paragraph(f"<b>{text}</b>", st["section"]))
-        elif clean_para.isupper() and len(clean_para) > 3:
-            story.append(Paragraph(clean_para, st["section"]))
-        else:
-            story.append(Paragraph(clean_para, st["body"]))
+        # ── HEADINGS ───────────────────────────────────────────────────────
+        if line.startswith("#"):
+            hashes = len(line) - len(line.lstrip("#"))
+            text = _clean(line.lstrip("#").strip())
+            if hashes <= 2:
+                # Big section banner
+                banner_data = [[Paragraph(f"<b>{text}</b>",
+                    ParagraphStyle("banner", fontName="Helvetica-Bold", fontSize=13,
+                                   textColor=WHITE, alignment=TA_LEFT))]]
+                banner = Table(banner_data, colWidths=[17*cm])
+                banner.setStyle(TableStyle([
+                    ("BACKGROUND",    (0, 0), (-1, -1), GREEN_DARK),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 12),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
+                ]))
+                story.append(Spacer(1, 0.4*cm))
+                story.append(banner)
+                story.append(Spacer(1, 0.2*cm))
+            else:
+                story.append(Paragraph(f"<b>{text}</b>", st["section"]))
+            i += 1
+            continue
+
+        # ── HORIZONTAL RULE ────────────────────────────────────────────────
+        if line.startswith("---"):
+            story.append(HRFlowable(width="100%", thickness=1,
+                                    color=GREEN_MID, spaceAfter=6, spaceBefore=6))
+            i += 1
+            continue
+
+        # ── BULLET / LIST ITEMS ────────────────────────────────────────────
+        if line.startswith(("- ", "* ", "+ ")):
+            clean = _clean(line[2:])
+            bullet_style = ParagraphStyle("bullet", fontName="Helvetica",
+                                          fontSize=10, textColor=GREY_TEXT,
+                                          leftIndent=14, spaceAfter=3, leading=15,
+                                          bulletText="•")
+            story.append(Paragraph(clean, bullet_style))
+            i += 1
+            continue
+
+        # ── INDENTED BULLET (sub-point) ────────────────────────────────────
+        if line.startswith(("  - ", "  * ")):
+            clean = _clean(line.strip()[2:])
+            sub_style = ParagraphStyle("sub_bullet", fontName="Helvetica",
+                                       fontSize=9, textColor=GREY_TEXT,
+                                       leftIndent=28, spaceAfter=2, leading=13,
+                                       bulletText="◦")
+            story.append(Paragraph(clean, sub_style))
+            i += 1
+            continue
+
+        # ── PLAIN PARAGRAPH ────────────────────────────────────────────────
+        clean = _clean(line)
+        story.append(Paragraph(clean, st["body"]))
         i += 1
 
     # ── Footer ───────────────────────────────────────────────────────────────
