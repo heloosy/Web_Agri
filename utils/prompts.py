@@ -46,21 +46,22 @@ PLAN_TEMPLATE = """
 ---
 
 ## 2. SOIL CHEMISTRY: PRECISION NUTRIENT PROTOCOL
-Provide a deep-dive into Macronutrients (N-P-K), Micronutrients (Zinc, Boron, Silicon), and pH management. Include specific forms (e.g., Urea, Muriate of Potash) and dosage in KG/HA.
+Provide a highly exhaustive deep-dive into Macronutrients (N-P-K), Micronutrients (Zinc, Boron, Silicon), and pH management. You MUST include specific forms (e.g., Urea, Muriate of Potash), absolute required dosages in KG/HA, precise application timing, and soil conditioning pre-requisites.
 
-## 3. 30-DAY MASTER TACTICAL CALENDAR
+## 3. COMPLETE LIFECYCLE TACTICAL CALENDAR (SEED TO HARVEST)
 **MANDATORY: YOU MUST USE A MARKDOWN TABLE FOR THIS SECTION.**
-Structure: | Day | Task | Details & Rationale |
-Include daily or weekly checkpoints for Tillering, Water Levels, and Scouting.
+Do not stop at 30 days. You must cover the ENTIRE crop lifecycle from Day 0 (Preparation) to completion (Harvest).
+Structure: | Phase & Days | Task & Action | Detailed Requirements & Chemicals |
+For every single phase, detail EXACTLY what the farmer has to do, listing every pesticide, nutrient type, and physical action required.
 
 ## 4. WATER ENGINEERING & IRRIGATION STRATEGY
-Detail the "Water Scarcity Strategy" vs "Optimal Flooding". Specify depths in CM for each growth stage. Explain the "Levee Inspection" and "Mid-Season Drainage" protocols.
+Detail "Water Scarcity Strategy" vs "Optimal Flooding". Specify exact depths in CM for each growth stage. Explain all drainage protocols in precise detail.
 
-## 5. BATTLE PLAN: INTEGRATED PEST MANAGEMENT (IPM)
-List specific pests (e.g., Stem Borer, Planthopper) with their **Economic Thresholds** and both Biological and Chemical interventions (e.g., Trichogramma wasps vs Chlorantraniliprole).
+## 5. BATTLE PLAN: INTEGRATED PEST MANAGEMENT (IPM) & DISEASE
+Provide an EXHAUSTIVE list of crop-specific pests and diseases. For each, give the **Economic Thresholds** and both Biological and Chemical interventions. Specify exact chemical dosages (e.g. Chlorantraniliprole 0.2 KG/HA) needed.
 
-## 6. 6-MONTH OPERATIONAL TIMELINE
-A high-level view of the entire cultivation cycle from field prep to post-harvest.
+## 6. HARVEST & POST-HARVEST LOGISTICS
+A highly detailed view of the harvest timing, drying methods, and storage to prevent rot.
 
 ## 7. CROP HEALTH & DISEASE DIAGNOSTICS
 Specific symptoms to watch for (e.g., Bacterial Leaf Blight, Rice Blast) and "Rescue Applications".
