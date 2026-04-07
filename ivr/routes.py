@@ -21,9 +21,10 @@ ivr_bp = Blueprint("ivr", __name__, url_prefix="/ivr")
 
 def _say(resp: VoiceResponse, text: str, lang: str) -> None:
     """Add a <Say> with the correct voice for the language."""
-    voice   = "Polly.Joanna"        if lang == "EN" else "Polly.Saara"
-    langcode = "en-US"              if lang == "EN" else "th-TH"
-    resp.say(text, voice=voice, language=langcode)
+    if lang == "EN":
+        resp.say(text, voice="Polly.Joanna", language="en-US")
+    else:
+        resp.say(text, voice="alice", language="th-TH")
 
 
 def _twiml(resp: VoiceResponse) -> Response:
@@ -46,9 +47,12 @@ def welcome():
                      timeout=10)
     gather.say(
         "Welcome to AgriSpark 2.0, your visionary farming partner. I am here to help you grow more and earn more. "
-        "Press 1 for English. Press 2 for Thai. "
-        "ยินดีต้อนรับสู่ AgriSpark 2.0 หุ้นส่วนต้นคิดเพื่อการเกษตรของคุณ กด 1 สำหรับภาษาอังกฤษ กด 2 สำหรับภาษาไทย",
+        "Press 1 for English. Press 2 for Thai.",
         voice="Polly.Joanna", language="en-US"
+    )
+    gather.say(
+        "ยินดีต้อนรับสู่ AgriSpark 2.0 หุ้นส่วนต้นคิดเพื่อการเกษตรของคุณ กด 1 สำหรับภาษาอังกฤษ กด 2 สำหรับภาษาไทย",
+        voice="alice", language="th-TH"
     )
     resp.append(gather)
     # Fallback if no input
@@ -76,7 +80,7 @@ def set_language():
         gather.say(
             "ยอดเยี่ยมมาก ฉันพร้อมช่วยเหลือคุณแล้ว กด 1 สำหรับการปรึกษาด้านการเกษตรอย่างรวดเร็ว "
             "กด 2 เพื่อรับการออกแบบแผนการเกษตรแบบมืออาชีพสำหรับพื้นที่ของคุณโดยเฉพาะ",
-            voice="Polly.Saara", language="th-TH"
+            voice="alice", language="th-TH"
         )
 
     resp.append(gather)
@@ -131,15 +135,16 @@ def quickchat():
     if lang == "EN":
         resp.say("I didn't catch that. Let me try again.", voice="Polly.Joanna", language="en-US")
     else:
-        resp.say("ฉันไม่ได้ยิน ลองอีกครั้ง", voice="Polly.Saara", language="th-TH")
+        resp.say("ฉันไม่ได้ยิน ลองอีกครั้ง", voice="alice", language="th-TH")
     resp.redirect("/ivr/quickchat")
     return _twiml(resp)
 
 
 def _say_gather(gather, text: str, lang: str):
-    voice    = "Polly.Joanna" if lang == "EN" else "Polly.Saara"
-    langcode = "en-US"        if lang == "EN" else "th-TH"
-    gather.say(text, voice=voice, language=langcode)
+    if lang == "EN":
+        gather.say(text, voice="Polly.Joanna", language="en-US")
+    else:
+        gather.say(text, voice="alice", language="th-TH")
 
 
 @ivr_bp.route("/quickreply", methods=["POST"])
