@@ -135,7 +135,7 @@ def generate_pdf(profile: dict, plan_text: str, lang: str = "EN") -> str:
             continue
             
         # 🧪 TABLE DETECTOR: Detect Markdown Tables (starts with |)
-        if line.startswith("|") and i + 1 < len(lines) and lines[i+1].strip().startswith("|-"):
+        if line.startswith("|") and i + 1 < len(lines) and lines[i+1].strip().replace(" ", "").startswith("|-"):
             table_data = []
             while i < len(lines) and lines[i].strip().startswith("|"):
                 # Clean row and split by |
