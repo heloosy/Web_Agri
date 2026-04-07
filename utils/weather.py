@@ -59,7 +59,8 @@ def get_weather_summary(location: str) -> str:
         f"weathercode&timezone=Asia%2FBangkok&forecast_days=7"
     )
     try:
-        resp = requests.get(url, timeout=10)
+        headers = {"User-Agent": "AgriSpark/2.0 (Smallholder Advisory App)"}
+        resp = requests.get(url, headers=headers, timeout=10)
         resp.raise_for_status()
         data = resp.json().get("daily", {})
 
@@ -80,4 +81,6 @@ def get_weather_summary(location: str) -> str:
         return summary
 
     except Exception as e:
-        return f"Weather data unavailable ({str(e)[:40]})"
+        print(f"Weather Fetch Error: {e}")
+        # Provide a realistic generic baseline so the AI can still give practical advice
+        return "Weather API offline. Assume standard seasonal tropical climate: 24–33°C, intermittent rains, moderate humidity."
