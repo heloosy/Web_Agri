@@ -32,56 +32,122 @@ def quick_system(lang: str) -> str:
 
 # ─── Detailed Farm Plan (MASTER AGRONOMIST) ───────────────────────────────────
 
-PLAN_TEMPLATE = """
-# AGRISPARK MASTER ADVISORY: MISSION-CRITICAL TACTICAL MANUAL
-**GENRATED:** {date} | **ARCHIVE ID:** {archive_id}
-
-## 1. FARMER PROFILE & OPERATIONAL BASELINE
-- **Farmer Name:** {name}
-- **Location:** {location}
-- **Crop Strategy:** {current_crop}
-- **Soil Type:** {soil_type} | **Terrain:** {terrain}
-- **Weather Window:** {weather}
-
----
-
-## 2. SOIL CHEMISTRY: PRECISION NUTRIENT PROTOCOL
-Provide a highly exhaustive deep-dive into Macronutrients (N-P-K), Micronutrients (Zinc, Boron, Silicon), and pH management. You MUST include specific forms (e.g., Urea, Muriate of Potash), absolute required dosages in KG/HA, precise application timing, and soil conditioning pre-requisites.
-
-## 3. COMPLETE LIFECYCLE TACTICAL CALENDAR (SEED TO HARVEST)
-**MANDATORY: YOU MUST USE A MARKDOWN TABLE FOR THIS SECTION.**
-Do not stop at 30 days. You must cover the ENTIRE crop lifecycle from Day 0 (Preparation) to completion (Harvest).
-Structure: | Phase & Days | Task & Action | Detailed Requirements & Chemicals |
-For every single phase, detail EXACTLY what the farmer has to do, listing every pesticide, nutrient type, and physical action required.
-
-## 4. WATER ENGINEERING & IRRIGATION STRATEGY
-Detail "Water Scarcity Strategy" vs "Optimal Flooding". Specify exact depths in CM for each growth stage. Explain all drainage protocols in precise detail.
-
-## 5. BATTLE PLAN: INTEGRATED PEST MANAGEMENT (IPM) & DISEASE
-Provide an EXHAUSTIVE list of crop-specific pests and diseases. For each, give the **Economic Thresholds** and both Biological and Chemical interventions. Specify exact chemical dosages (e.g. Chlorantraniliprole 0.2 KG/HA) needed.
-
-## 6. HARVEST & POST-HARVEST LOGISTICS
-A highly detailed view of the harvest timing, drying methods, and storage to prevent rot.
-
-## 7. CROP HEALTH & DISEASE DIAGNOSTICS
-Specific symptoms to watch for (e.g., Bacterial Leaf Blight, Rice Blast) and "Rescue Applications".
-
-## 8. MARKET PROFITABILITY & ROI PROJECTION
-Calculate estimated yield (KG/HA), local market prices, and total estimated ROI. 
-
-## 9. HARVEST & STORAGE LOGISTICS
-Optimal moisture content (MC%), drying methods (Sun vs Mechanical), and hermetic storage protocols to prevent rot.
-
-## 10. SUSTAINABILITY & REGENERATIVE DEPTH
-Instructions for cover cropping (e.g., Sesbania), soil regeneration, and intercropping for long-term health.
-
----
-*AgriSpark 2.0 - Developed by AI Agronomists for Southeast Asian Smallholders*
+PLAN_SYSTEM_PROMPT = """
+You are AgriSpark's MASTER AGRONOMIST AI — a world-class agricultural expert with 30 years experience in Southeast Asian smallholder farming. 
+You are writing a PROFESSIONAL FARM ADVISORY MANUAL that will be printed and given to a farmer.
+This manual must be HIGHLY SPECIFIC to this exact farmer's crop, location, soil, and terrain.
+You MUST write like a real expert agronomist — practical, precise, and deeply knowledgeable.
+NEVER use vague language. ALWAYS give specific product names, exact dosages, real timelines.
 """
 
-# Note: The PLAN_TEMPLATE_EN and TH are legacy now that we use the main PLAN_TEMPLATE with deep detail.
+PLAN_TEMPLATE = """
+You are writing a COMPLETE PROFESSIONAL FARMING MANUAL for this specific farmer.
+Their profile: Name={name}, Location={location}, Past Crop={past_crop}, Planned Crop={current_crop}, Soil={soil_type}, Terrain={terrain}
+Weather Context: {weather}
+
+Write a complete, exhaustive manual with ALL sections below. Be extremely specific and detailed for {current_crop} farming in {location}.
+
+---
+
+# AGRISPARK MASTER ADVISORY MANUAL
+## Personalized for {name} | {current_crop} | {location}
+
+---
+
+## SECTION 1: YOUR FARM BASELINE & STRATEGY
+
+Provide a thorough assessment of {name}'s specific situation. Discuss the challenges of growing {current_crop} on {soil_type} soil in {terrain} terrain in {location}. What makes this combination challenging or advantageous? What did growing {past_crop} last season mean for the soil health now?
+
+---
+
+## SECTION 2: SOIL PREPARATION & NUTRIENT PLAN
+
+**Based on {soil_type} soil for {current_crop}:**
+
+Sub-sections REQUIRED:
+- **Pre-Planting Soil Conditioning** - exact steps to prepare {soil_type} soil, including lime/gypsum application if needed with exact KG/HA dosages
+- **Basal Fertilizer (Day 0)** - exact NPK product names and dosages in KG/HA (e.g., "Apply 50 KG/HA of Urea (46-0-0) + 30 KG/HA of DAP (18-46-0)")
+- **Top-Dressing Schedule** - exact dates, products, and dosages for each application during the growth cycle
+- **Micronutrient Program** - Zinc, Boron, Silicon with specific product names and application methods
+- **pH Target & Correction** - exact target pH range for {current_crop} on {soil_type} and how to achieve it
+
+---
+
+## SECTION 3: COMPLETE WEEK-BY-WEEK CROP CALENDAR (Planting to Harvest)
+
+**MANDATORY: USE A MARKDOWN TABLE FOR THIS ENTIRE SECTION**
+
+This table must cover the COMPLETE lifecycle — do not stop early. Include EVERY week from land preparation through harvest. Each row must have specific, actionable tasks.
+
+| Week | Growth Stage | Key Tasks | Fertilizer/Chemical | Water Management | What to Watch For |
+| --- | --- | --- | --- | --- | --- |
+| Week 0 (Pre-Planting) | Land Preparation | [specific tasks] | [specific inputs] | [specific details] | [specific checks] |
+| Week 1 | [stage name] | [specific tasks] | [specific inputs] | [specific details] | [specific checks] |
+[Continue for EVERY week through final harvest week]
+
+---
+
+## SECTION 4: WATER & IRRIGATION MANAGEMENT
+
+**Specific to {terrain} terrain and {current_crop}:**
+- Exact water depth requirements for each growth stage (in CM)
+- Irrigation schedule (frequency and duration)
+- Drainage protocol timing
+- How to handle drought vs. flooding scenarios
+
+---
+
+## SECTION 5: INTEGRATED PEST & DISEASE MANAGEMENT (IPM)
+
+**Specific pests and diseases for {current_crop} in {location}:**
+
+For each pest/disease, provide:
+- **[Pest/Disease Name]**
+  - Identification: What it looks like (exact visual symptoms)
+  - Economic Threshold: When to act (e.g., "5% leaf damage" or "10 insects per hill")
+  - Biological Control: Specific beneficial organisms or organic methods
+  - Chemical Control: EXACT product name + active ingredient + dosage (e.g., "Chlorantraniliprole 18.5% SC at 200 ml/HA")
+  - Application Timing: Exactly when in the growth cycle to spray
+
+Minimum 6 pests/diseases for {current_crop}.
+
+---
+
+## SECTION 6: HARVEST PROTOCOL
+
+- **Harvest Indicators**: Exact visual and scientific signs {current_crop} is ready (e.g., moisture content %, grain color, days after flowering)
+- **Harvesting Method**: Manual vs mechanical, step-by-step instructions for {terrain} terrain
+- **Post-Harvest Handling**: Threshing, cleaning, drying (target moisture %, hours of sun drying)
+- **Storage**: Exact storage conditions (temperature, humidity %), recommended storage containers/bags, maximum safe storage duration
+
+---
+
+## SECTION 7: FINANCIAL & MARKET PROJECTION
+
+- **Input Cost Estimate**: Total estimated cost of seeds, fertilizers, pesticides, labor (in THB/HA)
+- **Expected Yield**: Realistic yield range (KG/HA) for {current_crop} on {soil_type} soil in {location}
+- **Market Price**: Current approximate local market price for {current_crop} in {location}
+- **Break-Even Analysis**: Minimum yield needed to cover costs
+- **Profit Projection**: High/medium/low scenario P&L
+
+---
+
+## SECTION 8: EMERGENCY TROUBLESHOOTING GUIDE
+
+Create a quick-reference diagnostic table:
+
+| Symptom You See | Likely Cause | Immediate Action |
+| --- | --- | --- |
+| [symptom] | [cause] | [action with product name if applicable] |
+
+Include at least 8 common emergencies for {current_crop}.
+
+---
+*AgriSpark 2.0 — AI Agricultural Advisory | Generated specifically for {name} in {location}*
+"""
+
 PLAN_TEMPLATE_EN = PLAN_TEMPLATE
-PLAN_TEMPLATE_TH = PLAN_TEMPLATE # We will eventually provide a localized version here if requested.
+PLAN_TEMPLATE_TH = PLAN_TEMPLATE
 
 VOICE_SUMMARY_SYSTEM_EN = """
 You are the AgriSpark Voice Advisor. 
@@ -130,8 +196,7 @@ def voice_summary_prompt(lang: str, plan_text: str) -> str:
     return f"Summarize this plan for a phone call:\n\n{plan_text}"
 
 def plan_prompt(lang: str, **kwargs) -> str:
-    # Always use the Pro template for PDF generation
-    return PLAN_TEMPLATE.format(date=datetime.now().strftime("%d %B %Y"), archive_id=kwargs.get('archive_id', '7804d5c3'), **kwargs)
+    return PLAN_TEMPLATE.format(**kwargs)
 
 
 # ─── WhatsApp Image Analysis ──────────────────────────────────────────────────
